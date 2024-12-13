@@ -1,4 +1,6 @@
 import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow logging
 from flask import Flask, render_template, request, jsonify
 from predict import AudioPredictor
@@ -10,8 +12,10 @@ import numpy as np
 import librosa
 import requests
 import os
+import tensorflow as tf
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# Force CPU-only operation
+tf.config.set_visible_devices([], 'GPU')
 
 app = Flask(__name__)
 predictor = AudioPredictor()

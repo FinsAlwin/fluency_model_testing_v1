@@ -1,3 +1,7 @@
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
 import numpy as np
 import librosa
 from tensorflow.keras.models import load_model
@@ -12,8 +16,8 @@ import io
 import requests
 import gdown
 
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# Force CPU-only operation
+tf.config.set_visible_devices([], 'GPU')
 
 class AudioPredictor:
     def _load_keras_model(self, path):

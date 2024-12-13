@@ -7,6 +7,13 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y ffmpeg
 
+# Set environment variable for CPU-only operation
+ENV CUDA_VISIBLE_DEVICES="-1"
+ENV TF_ENABLE_ONEDNN_OPTS=0
+
+# Install CPU-only TensorFlow first
+RUN pip install tensorflow-cpu
+
 # Install any additional dependencies your app needs
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
@@ -18,4 +25,4 @@ COPY . .
 EXPOSE 8000
 
 # Command to run your application
-CMD ["python", "app.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
