@@ -22,7 +22,38 @@ gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
-class AudioPredictor:
+class SingletonMeta(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+class AudioPredictor(metaclass=SingletonMeta):
+    _model = None
+    
+    def __init__(self):
+        self.sample_rate = 16000
+        # Don't load model in __init__
+        
+    @property
+    def model(self):
+        # Lazy load the model only when needed
+        if self._model is None:
+            print("Loading model...")
+            try:
+                tf.keras.backend.clear_session()
+                model_path = self._download_model()
+                self._model = self._load_keras_model(model_path)
+                if self._model is None:
+                    raise ValueError("Failed to load model.keras")
+                gc.collect()
+            except Exception as e:
+                print(f"Error loading model: {e}")
+                traceback.print_exc()
+                raise
+        return self._model
+
     def _load_keras_model(self, path):
         """Load .keras format model"""
         try:
@@ -92,74 +123,28 @@ class AudioPredictor:
             
             if not os.path.exists(model_path):
                 print("Model not found locally. Downloading from Google Drive...")
-                
-                # The file ID from your Google Drive share link
                 file_id = '1rcc01FwYJYWA3J2GWw8_gOkqovkXI7tv'
-                
-                # Construct the download URL
                 url = f'https://drive.google.com/uc?export=download&id={file_id}'
                 
                 try:
-                    print(f"Attempting to download from: {url}")
                     gdown.download(url, model_path, quiet=False, fuzzy=True)
-                    
                     if not os.path.exists(model_path):
                         raise Exception("Download completed but file not found")
-                        
-                    print(f"Model downloaded successfully to {model_path}")
                 except Exception as download_error:
                     print(f"Download error: {download_error}")
                     raise
-            else:
-                print(f"Model already exists at {model_path}")
             
             return model_path
         except Exception as e:
             print(f"Error in _download_model: {str(e)}")
             raise
 
-    def __init__(self):
-        print("Loading models...")
-        try:
-            self.model = None
-            self.sample_rate = 16000
-
-            # Get the models directory and download if needed
-            model_path = self._download_model()
-            
-            # Load the Keras model with memory optimization
-            tf.keras.backend.clear_session()
-            self.model = self._load_keras_model(model_path)
-            if self.model is None:
-                raise ValueError("Failed to load model.keras")
-            
-            self.models = {'keras_model': self.model}
-            print("Successfully loaded Keras model")
-
-            # Force garbage collection
-            gc.collect()
-
-            # Try to load test data if available (but don't require it)
-            try:
-                self.X_test = np.load(os.path.join(models_dir, 'X_test.npy'))
-                self.y_test = np.load(os.path.join(models_dir, 'y_test.npy'))
-                print("\nTest data loaded successfully")
-            except Exception as e:
-                print(f"\nNote: Test data not available: {e}")
-                self.X_test = None
-                self.y_test = None
-
-            print(f"\nSuccessfully loaded model")
-            print(f"Model type: Keras model")
-
-        except Exception as e:
-            print(f"\nError loading model: {e}")
-            traceback.print_exc()
-            raise
-
     def predict_audio(self, audio_path):
-        """Predict fluency from audio file using all available models"""
+        """Predict fluency from audio file"""
         try:
+            # Get model (will load if not loaded)
+            model = self.model
+            
             # Convert webm to wav
             audio = AudioSegment.from_file(audio_path, format="webm")
             wav_path = audio_path.rsplit('.', 1)[0] + '.wav'
