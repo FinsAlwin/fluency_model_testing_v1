@@ -9,6 +9,8 @@ import json
 from datetime import datetime
 from pydub import AudioSegment
 import io
+import requests
+import gdown
 
 
 class AudioPredictor:
@@ -72,25 +74,52 @@ class AudioPredictor:
             print(f"Error loading architecture and weights: {e}")
             return None
 
+    def _download_model(self):
+        """Download model from Google Drive if not present"""
+        try:
+            models_dir = 'models'
+            os.makedirs(models_dir, exist_ok=True)
+            model_path = os.path.join(models_dir, 'model.keras')
+            
+            if not os.path.exists(model_path):
+                print("Model not found locally. Downloading from Google Drive...")
+                
+                # The file ID from your Google Drive share link
+                file_id = '1rcc01FwYJYWA3J2GWw8_gOkqovkXI7tv'
+                
+                # Construct the download URL
+                url = f'https://drive.google.com/uc?export=download&id={file_id}'
+                
+                try:
+                    print(f"Attempting to download from: {url}")
+                    gdown.download(url, model_path, quiet=False, fuzzy=True)
+                    
+                    if not os.path.exists(model_path):
+                        raise Exception("Download completed but file not found")
+                        
+                    print(f"Model downloaded successfully to {model_path}")
+                except Exception as download_error:
+                    print(f"Download error: {download_error}")
+                    raise
+            else:
+                print(f"Model already exists at {model_path}")
+            
+            return model_path
+        except Exception as e:
+            print(f"Error in _download_model: {str(e)}")
+            raise
+
     def __init__(self):
         print("Loading models...")
         try:
             self.model = None
             self.sample_rate = 16000
 
-            # Get the models directory
-            models_dir = 'models'
-            print(f"Looking for models in: {os.path.abspath(models_dir)}")
-            
-            # Try loading Keras model directly
-            keras_path = os.path.join(models_dir, 'model.keras')
-            print(f"\nAttempting to load Keras model from: {keras_path}")
-            
-            if not os.path.exists(keras_path):
-                raise ValueError(f"model.keras not found at: {keras_path}")
+            # Get the models directory and download if needed
+            model_path = self._download_model()
             
             # Load the Keras model
-            self.model = self._load_keras_model(keras_path)
+            self.model = self._load_keras_model(model_path)
             if self.model is None:
                 raise ValueError("Failed to load model.keras")
             
