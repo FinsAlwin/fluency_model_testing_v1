@@ -8,6 +8,7 @@ import traceback
 from pydub import AudioSegment
 import numpy as np
 import librosa
+import requests
 
 app = Flask(__name__)
 predictor = AudioPredictor()
@@ -65,6 +66,20 @@ def split_audio(audio_path, segment_length=SEGMENT_LENGTH):
         print(f"Error splitting audio: {e}")
         traceback.print_exc()
         return None
+
+def download_model_from_drive():
+    os.makedirs('models', exist_ok=True)
+    model_path = 'models/model.keras'
+    
+    if not os.path.exists(model_path):
+        # Replace with your direct download link
+        download_url = 'https://drive.google.com/file/d/1rcc01FwYJYWA3J2GWw8_gOkqovkXI7tv/view?usp=drive_link'
+        
+        response = requests.get(download_url)
+        with open(model_path, 'wb') as f:
+            f.write(response.content)
+    
+    return model_path
 
 @app.route('/')
 def index():
