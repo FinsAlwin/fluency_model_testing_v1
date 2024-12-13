@@ -15,9 +15,12 @@ from pydub import AudioSegment
 import io
 import requests
 import gdown
+import gc
 
-# Force CPU-only operation
-tf.config.set_visible_devices([], 'GPU')
+# Configure TensorFlow for memory optimization
+gpus = tf.config.experimental.list_physical_devices('GPU')
+for gpu in gpus:
+    tf.config.experimental.set_memory_growth(gpu, True)
 
 class AudioPredictor:
     def _load_keras_model(self, path):
@@ -124,13 +127,17 @@ class AudioPredictor:
             # Get the models directory and download if needed
             model_path = self._download_model()
             
-            # Load the Keras model
+            # Load the Keras model with memory optimization
+            tf.keras.backend.clear_session()
             self.model = self._load_keras_model(model_path)
             if self.model is None:
                 raise ValueError("Failed to load model.keras")
             
             self.models = {'keras_model': self.model}
             print("Successfully loaded Keras model")
+
+            # Force garbage collection
+            gc.collect()
 
             # Try to load test data if available (but don't require it)
             try:
@@ -198,6 +205,9 @@ class AudioPredictor:
             predictions = {}
             for model_name, model in self.models.items():
                 if model is not None:
+                    # Clear session before prediction
+                    tf.keras.backend.clear_session()
+                    
                     # Make prediction
                     pred = model.predict(np.expand_dims(
                         mel_spec_db, axis=0), verbose=0)
@@ -227,6 +237,8 @@ class AudioPredictor:
 
                     predictions[model_name] = prediction_dict
 
+            # Force garbage collection after predictions
+            gc.collect()
             return predictions
 
         except Exception as e:
