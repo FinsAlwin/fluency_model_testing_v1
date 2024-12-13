@@ -12,6 +12,8 @@ import io
 import requests
 import gdown
 
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 class AudioPredictor:
     def _load_keras_model(self, path):

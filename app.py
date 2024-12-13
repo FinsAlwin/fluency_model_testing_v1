@@ -9,6 +9,9 @@ from pydub import AudioSegment
 import numpy as np
 import librosa
 import requests
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 app = Flask(__name__)
 predictor = AudioPredictor()
