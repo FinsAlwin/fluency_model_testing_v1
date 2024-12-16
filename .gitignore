@@ -14,3 +14,4 @@ build/
 modelTesting/
 models/
 *.keras
+fluency/
