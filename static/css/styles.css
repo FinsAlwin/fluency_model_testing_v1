@@ -1,0 +1,291 @@
+:root {
+    --bg-color: #0a0a0a;
+    --text-color: #ffffff;
+    --primary-color: #2196F3;
+    --secondary-color: #1a1a1a;
+    --border-color: #2d2d2d;
+    --hover-color: #1976D2;
+    --error-color: #ff4444;
+    --success-color: #4CAF50;
+    --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container {
+    max-width: 100%;
+    padding: 0.75rem;
+    padding-bottom: calc(0.75rem + var(--safe-area-inset-bottom));
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 1rem 0;
+    background: linear-gradient(45deg, var(--primary-color), #64B5F6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+}
+
+.card {
+    background-color: var(--secondary-color);
+    border-radius: 24px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+/* Modern Button Styles */
+.button-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+}
+
+button {
+    background: linear-gradient(45deg, var(--primary-color), var(--hover-color));
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+button:disabled {
+    background: var(--border-color);
+    opacity: 0.7;
+    box-shadow: none;
+}
+
+/* Status Indicator */
+#status {
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 16px;
+    background-color: var(--secondary-color);
+    font-weight: 500;
+    margin-top: 0.75rem;
+    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.recording {
+    color: var(--error-color);
+    background: rgba(255, 68, 68, 0.1) !important;
+    border-color: var(--error-color) !important;
+    animation: pulse 1.5s infinite;
+}
+
+/* Results Section */
+.model-result {
+    background-color: var(--secondary-color);
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.confidence-bar {
+    height: 6px;
+    background-color: var(--border-color);
+    border-radius: 3px;
+    margin: 0.75rem 0;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: linear-gradient(45deg, var(--primary-color), var(--hover-color));
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Accordion Styling */
+.accordion-header {
+    cursor: pointer;
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+    border-radius: 16px;
+    background-color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+.accordion-header h2 {
+    font-size: 1.25rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.accordion-header i {
+    color: var(--primary-color);
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    padding: 0 0.75rem;
+}
+
+.accordion-content.active {
+    max-height: 1000px; /* Adjust this value based on your content */
+    padding: 0.75rem;
+}
+
+.toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+/* Audio Player Styling */
+.audio-player audio {
+    width: 100%;
+    border-radius: 12px;
+    background: var(--secondary-color);
+    margin-top: 0.75rem;
+}
+
+/* Language Examples */
+.language-example {
+    background-color: var(--secondary-color);
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.language-example h4 {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* Mobile Optimizations */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+    }
+
+    button {
+        padding: 0.875rem;
+    }
+}
+
+/* Dark Mode Optimizations */
+@media (prefers-color-scheme: dark) {
+    .card {
+        background-color: rgba(26, 26, 26, 0.95);
+    }
+}
+
+/* Splash Screen Styles */
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-color);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease-out;
+}
+
+.splash-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(45deg, var(--primary-color), #64B5F6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+    animation: pulse-grow 1.5s infinite;
+}
+
+.splash-logo i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+.splash-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-top: 1rem;
+    background: linear-gradient(45deg, var(--primary-color), #64B5F6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.splash-subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+@keyframes pulse-grow {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.fade-out {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease-out;
+}

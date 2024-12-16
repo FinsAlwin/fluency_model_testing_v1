@@ -2,240 +2,106 @@
 <html>
 <head>
     <title>Speech Fluency Predictor</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        :root {
-            --bg-color: #1a1a1a;
-            --text-color: #ffffff;
-            --primary-color: #4CAF50;
-            --secondary-color: #2d2d2d;
-            --border-color: #333333;
-            --hover-color: #3d8b40;
-            --error-color: #ff4444;
-        }
-
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 30px;
-            font-size: 2em;
-        }
-
-        .controls, .results {
-            margin: 20px 0;
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background-color: var(--secondary-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        button {
-            padding: 12px 24px;
-            margin: 5px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            background-color: var(--primary-color);
-            color: white;
-            width: 100%;
-            max-width: 200px;
-        }
-
-        button:hover:not(:disabled) {
-            background-color: var(--hover-color);
-            transform: translateY(-2px);
-        }
-
-        button:disabled {
-            background-color: var(--border-color);
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        #status {
-            text-align: center;
-            margin: 15px 0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        .recording {
-            color: #ff4444;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .model-result {
-            margin: 15px 0;
-            padding: 15px;
-            background-color: var(--bg-color);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-
-        .model-result h3 {
-            margin-top: 0;
-            color: var(--primary-color);
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .confidence-bar {
-            width: 100%;
-            height: 20px;
-            background-color: var(--border-color);
-            border-radius: 10px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-
-        .confidence-fill {
-            height: 100%;
-            background-color: var(--primary-color);
-            transition: width 0.5s ease-in-out;
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            h1 {
-                font-size: 1.5em;
-            }
-
-            .controls, .results {
-                padding: 15px;
-            }
-
-            button {
-                width: 100%;
-                max-width: none;
-                margin: 5px 0;
-            }
-        }
-
-        .audio-player {
-            margin: 20px 0;
-            width: 100%;
-            display: none; /* Hidden by default */
-        }
-
-        .audio-player audio {
-            width: 100%;
-            border-radius: 8px;
-            background-color: var(--secondary-color);
-        }
-
-        /* Custom audio player styling */
-        audio::-webkit-media-controls-panel {
-            background-color: var(--secondary-color);
-        }
-
-        audio::-webkit-media-controls-current-time-display,
-        audio::-webkit-media-controls-time-remaining-display {
-            color: var(--text-color);
-        }
-
-        .recording-container {
-            margin: 15px 0;
-            padding: 15px;
-            border-radius: 8px;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border-color);
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+    <div class="splash-screen">
+        <div class="splash-logo">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <div class="splash-title">Speech Fluency</div>
+        <div class="splash-subtitle">AI-Powered Analysis</div>
+    </div>
+    
     <h1>Speech Fluency Predictor</h1>
     
-    <div class="controls">
-        <div class="button-container">
-            <button id="startRecord">Start Recording</button>
-            <button id="stopRecord" disabled>Stop Recording</button>
-        </div>
-        <p id="status">Status: Ready to record</p>
-        <div class="recording-container">
-            <h3>Last Recording</h3>
-            <div id="audioPlayer" class="audio-player">
-                <audio controls id="recordedAudio">
-                    Your browser does not support the audio element.
-                </audio>
+    <div class="container">
+        <div class="card results">
+            <div class="results-header">
+                <h2><i class="fas fa-chart-bar"></i> Live Results</h2>
+            </div>
+            <div id="predictions">
+                <div class="initial-message">
+                    Record your speech to see predictions here
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="accordion">
-        <div class="accordion-item">
-            <div class="accordion-header" onclick="toggleAccordion(this)">
-                <h3>Test Conversations</h3>
+        <div class="card controls">
+            <div class="accordion-header" onclick="toggleSection('controlsContent')">
+                <h2><i class="fas fa-microphone"></i> Recording Controls</h2>
                 <span class="toggle-icon">▼</span>
             </div>
-            <div class="accordion-content">
-                <div class="accordion-inner">
-                    <div class="language-example">
-                        <h4>English</h4>
-                        <div class="example-text">
-                            <p><strong>Fluent:</strong> "I went to the store yesterday and bought some groceries for dinner."</p>
-                            <p><strong>Disfluent:</strong> "I... um... went to the... uh... store yesterday and... like... bought some groceries."</p>
-                        </div>
-                    </div>
+            <div id="controlsContent" class="accordion-content">
+                <div class="button-container">
+                    <button id="startRecord">
+                        <i class="fas fa-microphone"></i> Start Recording
+                    </button>
+                    <button id="stopRecord" disabled>
+                        <i class="fas fa-stop"></i> Stop Recording
+                    </button>
+                </div>
+                <div id="status" class="status-card">Ready to record</div>
+            </div>
+        </div>
 
-                    <div class="language-example">
-                        <h4>Malayalam</h4>
-                        <div class="example-text">
-                            <p><strong>Fluent:</strong> "ഞാൻ ഇന്നലെ കടയിൽ പോയി അത്താഴത്തിന് സാധനങ്ങൾ വാങ്ങി."</p>
-                            <p><strong>Disfluent:</strong> "ഞാൻ... അതായത്... ഇന്നലെ... മ്മ്... കടയിൽ പോയി... എന്താ പറഞ്ഞേ... സാധനങ്ങൾ വാങ്ങി."</p>
-                        </div>
-                    </div>
+        <div class="card recording-container" id="recordingContainer" style="display: none;">
+            <div class="accordion-header" onclick="toggleSection('playbackContent')">
+                <h2><i class="fas fa-play-circle"></i> Last Recording</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div id="playbackContent" class="accordion-content">
+                <div id="audioPlayer" class="audio-player">
+                    <audio controls id="recordedAudio">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+            </div>
+        </div>
 
-                    <div class="language-example">
-                        <h4>Hindi</h4>
-                        <div class="example-text">
-                            <p><strong>Fluent:</strong> "मैं कल दुकान से रात के खाने का सामान खरीदने गया था।"</p>
-                            <p><strong>Disfluent:</strong> "मैं... वो... कल... अम्म... दुकान से... क्या कहूं... सामान खरीदने गया था।"</p>
-                        </div>
+        <div class="card">
+            <div class="accordion-header" onclick="toggleSection('examplesContent')">
+                <h2><i class="fas fa-book"></i> Example Conversations</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div id="examplesContent" class="accordion-content">
+                <div class="language-example">
+                    <h4>English</h4>
+                    <div class="example-text">
+                        <p><strong>Fluent:</strong> "I went to the store yesterday and bought some groceries for dinner."</p>
+                        <p><strong>Disfluent:</strong> "I... um... went to the... uh... store yesterday and... like... bought some groceries."</p>
                     </div>
+                </div>
 
-                    <div class="language-example">
-                        <h4>Russian</h4>
-                        <div class="example-text">
-                            <p><strong>Fluent:</strong> "Вчера я ходил в магазин и купил продукты на ужин."</p>
-                            <p><strong>Disfluent:</strong> "Вчера я... эм... ходил в... ну... магазин и... как бы... купил продукты."</p>
-                        </div>
+                <div class="language-example">
+                    <h4>Malayalam</h4>
+                    <div class="example-text">
+                        <p><strong>Fluent:</strong> "ഞാൻ ഇന്നലെ കടയിൽ പോയി അത്താഴത്തിന് സാധനങ്ങൾ വാങ്ങി."</p>
+                        <p><strong>Disfluent:</strong> "ഞാൻ... അതായത്... ഇന്നലെ... മ്മ്... കടയിൽ പോയി... എന്താ പറഞ്ഞേ... സാധനങ്ങൾ വാങ്ങി."</p>
+                    </div>
+                </div>
+
+                <div class="language-example">
+                    <h4>Hindi</h4>
+                    <div class="example-text">
+                        <p><strong>Fluent:</strong> "मैं कल दुकान से रात के खाने का सामान खरीदने गया था।"</p>
+                        <p><strong>Disfluent:</strong> "मैं... वो... कल... अम्म... दुकान से... क्या कहूं... सामान खरीदने गया था।"</p>
+                    </div>
+                </div>
+
+                <div class="language-example">
+                    <h4>Russian</h4>
+                    <div class="example-text">
+                        <p><strong>Fluent:</strong> "Вчера я ходил в магазин и купил продукты на ужин."</p>
+                        <p><strong>Disfluent:</strong> "Вчера я... эм... ходил в... ну... магазин и... как бы... купил продукты."</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="results">
-        <h2>Predictions</h2>
-        <div id="predictions"></div>
     </div>
 
     <script>
@@ -245,8 +111,8 @@
 
         document.getElementById('startRecord').onclick = async () => {
             try {
-                // Hide previous recording if exists
-                document.getElementById('audioPlayer').style.display = 'none';
+                // Hide previous recording when starting new recording
+                document.getElementById('recordingContainer').style.display = 'none';
                 
                 stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream, {
@@ -264,11 +130,17 @@
                     
                     const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                     
-                    // Create audio player with the recording
+                    // Show the recording container and update audio player
                     const audioURL = URL.createObjectURL(audioBlob);
                     const audioPlayer = document.getElementById('recordedAudio');
                     audioPlayer.src = audioURL;
-                    document.getElementById('audioPlayer').style.display = 'block';
+                    
+                    // Show recording container and expand its content
+                    const recordingContainer = document.getElementById('recordingContainer');
+                    recordingContainer.style.display = 'block';
+                    const playbackContent = document.getElementById('playbackContent');
+                    playbackContent.classList.add('active');
+                    recordingContainer.querySelector('.toggle-icon').style.transform = 'rotate(180deg)';
 
                     const formData = new FormData();
                     formData.append('audio', audioBlob, 'recording.webm');
@@ -334,6 +206,31 @@
             
             document.getElementById('status').textContent = 'Status: Ready to record';
         }
+
+        function toggleSection(id) {
+            const content = document.getElementById(id);
+            const header = content.previousElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            if (content.style.maxHeight) {
+                content.style.maxHeight = null;
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.maxHeight = content.scrollHeight + "px";
+                icon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        // Splash screen handler
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const splash = document.querySelector('.splash-screen');
+                splash.classList.add('fade-out');
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                }, 500); // Wait for the fade-out transition to complete
+            }, 2000); // Splash screen will show for 2 seconds
+        });
     </script>
 </body>
 </html> 

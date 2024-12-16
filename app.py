@@ -18,7 +18,7 @@ import tensorflow as tf
 tf.config.set_visible_devices([], 'GPU')
 
 app = Flask(__name__)
-predictor = None
+predictor = AudioPredictor()
 
 # Configure paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -88,17 +88,6 @@ def download_model_from_drive():
     
     return model_path
 
-def get_predictor():
-    global predictor
-    if predictor is None:
-        predictor = AudioPredictor()
-    return predictor
-
-@app.before_first_request
-def initialize():
-    global predictor
-    predictor = get_predictor()
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -106,7 +95,6 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        predictor = get_predictor()
         if 'audio' not in request.files:
             return jsonify({'error': 'No audio file provided'}), 400
         
@@ -146,7 +134,6 @@ def predict():
 @app.route('/api/predict', methods=['POST'])
 def api_predict():
     try:
-        predictor = get_predictor()
         print("Received API request")
         
         if 'audio' not in request.files:
@@ -268,4 +255,4 @@ def api_predict():
 
 if __name__ == '__main__':
     print(f"Server starting. Upload directory: {UPLOAD_FOLDER}")
-    app.run(debug=True) 
+    app.run()

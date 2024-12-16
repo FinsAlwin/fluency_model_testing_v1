@@ -22,37 +22,41 @@ gpus = tf.config.experimental.list_physical_devices('GPU')
 for gpu in gpus:
     tf.config.experimental.set_memory_growth(gpu, True)
 
-class SingletonMeta(type):
-    _instances = {}
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-class AudioPredictor(metaclass=SingletonMeta):
-    _model = None
-    
+class AudioPredictor:
     def __init__(self):
-        self.sample_rate = 16000
-        # Don't load model in __init__
-        
-    @property
-    def model(self):
-        # Lazy load the model only when needed
-        if self._model is None:
-            print("Loading model...")
+        print("Loading models...")
+        try:
+            self.model = None
+            self.sample_rate = 16000
+
+            # Get the models directory and download if needed
+            model_path = self._download_model()
+            
+            # Load the Keras model
+            self.model = self._load_keras_model(model_path)
+            if self.model is None:
+                raise ValueError("Failed to load model.keras")
+            
+            self.models = {'keras_model': self.model}
+            print("Successfully loaded Keras model")
+
+            # Try to load test data if available
             try:
-                tf.keras.backend.clear_session()
-                model_path = self._download_model()
-                self._model = self._load_keras_model(model_path)
-                if self._model is None:
-                    raise ValueError("Failed to load model.keras")
-                gc.collect()
+                self.X_test = np.load(os.path.join(models_dir, 'X_test.npy'))
+                self.y_test = np.load(os.path.join(models_dir, 'y_test.npy'))
+                print("\nTest data loaded successfully")
             except Exception as e:
-                print(f"Error loading model: {e}")
-                traceback.print_exc()
-                raise
-        return self._model
+                print(f"\nNote: Test data not available: {e}")
+                self.X_test = None
+                self.y_test = None
+
+            print(f"\nSuccessfully loaded model")
+            print(f"Model type: Keras model")
+
+        except Exception as e:
+            print(f"\nError loading model: {e}")
+            traceback.print_exc()
+            raise
 
     def _load_keras_model(self, path):
         """Load .keras format model"""
