@@ -289,3 +289,203 @@ button:disabled {
     pointer-events: none;
     transition: opacity 0.5s ease-out;
 }
+
+.feedback-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-left: auto;
+}
+
+.feedback-button:hover {
+    background-color: #45a049;
+}
+
+.results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+/* Intro Overlay Styles */
+.intro-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto;
+    backdrop-filter: blur(10px);
+    /* Hide scrollbar for IE, Edge and Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.intro-overlay::-webkit-scrollbar {
+    display: none;
+}
+
+.intro-content {
+    background: var(--secondary-color);
+    padding: 2.5rem;
+    border-radius: 24px;
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh; /* Reduced from 90vh for better spacing */
+    overflow-y: auto;
+    position: relative;
+    margin: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    animation: slideIn 0.5s ease-out;
+    /* Improved scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) var(--secondary-color);
+}
+
+/* Custom scrollbar for intro-content */
+.intro-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.intro-content::-webkit-scrollbar-track {
+    background: var(--secondary-color);
+    border-radius: 3px;
+}
+
+.intro-content::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+.intro-section {
+    margin-bottom: 2.5rem;
+}
+
+.intro-content h2 {
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+    font-weight: 600;
+    font-size: 2rem;
+    background: linear-gradient(45deg, var(--primary-color), #64B5F6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+}
+
+.intro-content h3 {
+    color: var(--text-color);
+    margin-bottom: 1.25rem;
+    font-weight: 500;
+    font-size: 1.5rem;
+    letter-spacing: 0.3px;
+}
+
+.intro-content h4 {
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+    font-size: 1.2rem;
+    letter-spacing: 0.2px;
+}
+
+.intro-content p, 
+.intro-content li {
+    color: var(--text-color);
+    line-height: 1.8;
+    font-weight: 300;
+    font-size: 1.05rem;
+    opacity: 0.95;
+    letter-spacing: 0.2px;
+    margin-bottom: 0.75rem;
+}
+
+.intro-content ul {
+    padding-left: 1.5rem;
+}
+
+.intro-content li {
+    margin-bottom: 0.5rem;
+}
+
+.step {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(33, 150, 243, 0.1);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+}
+
+.start-button {
+    background: linear-gradient(45deg, var(--primary-color), var(--hover-color));
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: var(--transition);
+    display: block;
+    margin: 3rem auto 1rem;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.start-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+}
+
+/* Mobile optimization for intro overlay */
+@media (max-width: 768px) {
+    .intro-content {
+        padding: 1.75rem;
+        margin: 10px;
+        width: 95%;
+        max-height: 80vh;
+    }
+
+    .intro-content h2 {
+        font-size: 1.6rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .intro-content h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+    .intro-content h4 {
+        font-size: 1.1rem;
+    }
+
+    .intro-content p,
+    .intro-content li {
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+
+    .step {
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .start-button {
+        margin: 2rem auto 0.5rem;
+        padding: 0.875rem 1.75rem;
+    }
+}

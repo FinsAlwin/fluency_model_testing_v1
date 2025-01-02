@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./results:/app/results
+      - ./models:/app/models
+    environment:
+      - CUDA_VISIBLE_DEVICES=-1
+      - TF_ENABLE_ONEDNN_OPTS=0
+      - TF_CPP_MIN_LOG_LEVEL=2
+    restart: unless-stopped 

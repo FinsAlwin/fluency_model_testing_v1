@@ -255,4 +255,4 @@ def api_predict():
 
 if __name__ == '__main__':
     print(f"Server starting. Upload directory: {UPLOAD_FOLDER}")
-    app.run()
+    app.run(host='0.0.0.0', port=80)

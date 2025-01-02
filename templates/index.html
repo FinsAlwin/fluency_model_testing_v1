@@ -7,8 +7,61 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="intro-overlay" id="introOverlay">
+        <div class="intro-content">
+            <h2>Speech Fluency Testing Guide</h2>
+            
+            <div class="intro-section">
+                <h3>Objective</h3>
+                <p>This tool evaluates speech fluency using deep learning. Users can record both spontaneous and read speech, receiving immediate feedback on fluency with confidence scores.</p>
+            </div>
+
+            <div class="intro-section">
+                <h3>Testing Instructions</h3>
+                <div class="step">
+                    <h4>1. Prepare for Recording</h4>
+                    <ul>
+                        <li><strong>Spontaneous Speech:</strong> Speak freely on any topic</li>
+                        <li><strong>Reading Material:</strong> Read aloud from chosen text</li>
+                    </ul>
+                </div>
+                
+                <div class="step">
+                    <h4>2. Record Your Speech</h4>
+                    <ul>
+                        <li>Use a quiet environment</li>
+                        <li>Speak clearly and naturally</li>
+                        <li>Review your recording playback</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h4>3. Review Results</h4>
+                    <ul>
+                        <li>Check the fluency prediction</li>
+                        <li>Note the confidence score (0-100%)</li>
+                        <li>Compare with your self-assessment</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="intro-section">
+                <h3>Feedback</h3>
+                <p>Please help us improve by providing feedback on:</p>
+                <ul>
+                    <li>Prediction accuracy</li>
+                    <li>Audio quality issues</li>
+                    <li>Any discrepancies between the prediction and your assessment</li>
+                </ul>
+            </div>
+
+            <button class="start-button" onclick="closeIntro()">Start Testing</button>
+        </div>
+    </div>
+
     <div class="splash-screen">
         <div class="splash-logo">
             <i class="fas fa-microphone"></i>
@@ -23,6 +76,11 @@
         <div class="card results">
             <div class="results-header">
                 <h2><i class="fas fa-chart-bar"></i> Live Results</h2>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeQwVKwXiMrvtZBbzldjaR7YllkpQHq6Pkck_LUTzLd7Ev7YQ/viewform" 
+                   target="_blank" 
+                   class="feedback-button">
+                    <i class="fas fa-comment"></i> Provide Feedback
+                </a>
             </div>
             <div id="predictions">
                 <div class="initial-message">
@@ -63,45 +121,7 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="accordion-header" onclick="toggleSection('examplesContent')">
-                <h2><i class="fas fa-book"></i> Example Conversations</h2>
-                <span class="toggle-icon">▼</span>
-            </div>
-            <div id="examplesContent" class="accordion-content">
-                <div class="language-example">
-                    <h4>English</h4>
-                    <div class="example-text">
-                        <p><strong>Fluent:</strong> "I went to the store yesterday and bought some groceries for dinner."</p>
-                        <p><strong>Disfluent:</strong> "I... um... went to the... uh... store yesterday and... like... bought some groceries."</p>
-                    </div>
-                </div>
-
-                <div class="language-example">
-                    <h4>Malayalam</h4>
-                    <div class="example-text">
-                        <p><strong>Fluent:</strong> "ഞാൻ ഇന്നലെ കടയിൽ പോയി അത്താഴത്തിന് സാധനങ്ങൾ വാങ്ങി."</p>
-                        <p><strong>Disfluent:</strong> "ഞാൻ... അതായത്... ഇന്നലെ... മ്മ്... കടയിൽ പോയി... എന്താ പറഞ്ഞേ... സാധനങ്ങൾ വാങ്ങി."</p>
-                    </div>
-                </div>
-
-                <div class="language-example">
-                    <h4>Hindi</h4>
-                    <div class="example-text">
-                        <p><strong>Fluent:</strong> "मैं कल दुकान से रात के खाने का सामान खरीदने गया था।"</p>
-                        <p><strong>Disfluent:</strong> "मैं... वो... कल... अम्म... दुकान से... क्या कहूं... सामान खरीदने गया था।"</p>
-                    </div>
-                </div>
-
-                <div class="language-example">
-                    <h4>Russian</h4>
-                    <div class="example-text">
-                        <p><strong>Fluent:</strong> "Вчера я ходил в магазин и купил продукты на ужин."</p>
-                        <p><strong>Disfluent:</strong> "Вчера я... эм... ходил в... ну... магазин и... как бы... купил продукты."</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+     
     </div>
 
     <script>
@@ -111,12 +131,104 @@
 
         document.getElementById('startRecord').onclick = async () => {
             try {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(stream => {
+                            console.log('Microphone access granted');
+                            
+                            // Check for supported MIME types
+                            let mimeType = 'audio/wav'; // Default to WAV
+
+                            if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                                mimeType = 'audio/mp4'; // Use M4A if supported
+                            } else if (MediaRecorder.isTypeSupported('audio/mpeg')) {
+                                mimeType = 'audio/mpeg'; // Use MP3 if supported
+                            } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+                                mimeType = 'audio/aac'; // Use AAC if supported
+                            }
+
+                            // Log the selected MIME type
+                            console.log('Using MIME type:', mimeType);
+
+                            mediaRecorder = new MediaRecorder(stream, {
+                                mimeType: mimeType,
+                                audioBitsPerSecond: 16000
+                            });
+                            
+                            mediaRecorder.ondataavailable = (event) => {
+                                audioChunks.push(event.data);
+                            };
+
+                            mediaRecorder.onstop = async () => {
+                                console.log('Recording stopped');
+                                // Stop all tracks in the stream
+                                stream.getTracks().forEach(track => track.stop());
+                                
+                                const audioBlob = new Blob(audioChunks, { type: mimeType });
+                                
+                                // Show the recording container and update audio player
+                                const audioURL = URL.createObjectURL(audioBlob);
+                                const audioPlayer = document.getElementById('recordedAudio');
+                                audioPlayer.src = audioURL;
+                                
+                                // Show recording container and expand its content
+                                const recordingContainer = document.getElementById('recordingContainer');
+                                recordingContainer.style.display = 'block';
+                                const playbackContent = document.getElementById('playbackContent');
+                                playbackContent.classList.add('active');
+                                recordingContainer.querySelector('.toggle-icon').style.transform = 'rotate(180deg)';
+
+                                const formData = new FormData();
+                                formData.append('audio', audioBlob, 'recording.webm');
+
+                                document.getElementById('status').textContent = 'Status: Processing...';
+                                document.getElementById('status').className = '';
+                                
+                                try {
+                                    const response = await fetch('/predict', {
+                                        method: 'POST',
+                                        body: formData
+                                    });
+                                    const predictions = await response.json();
+                                    displayPredictions(predictions);
+                                } catch (error) {
+                                    console.error('Error:', error);
+                                    document.getElementById('status').textContent = 'Status: Error processing audio';
+                                }
+                            };
+
+                            audioChunks = [];
+                            mediaRecorder.start();
+                            document.getElementById('startRecord').disabled = true;
+                            document.getElementById('stopRecord').disabled = false;
+                            document.getElementById('status').textContent = 'Status: Recording...';
+                            document.getElementById('status').className = 'recording';
+                        })
+                        .catch(error => {
+                            console.error('Error accessing microphone:', error);
+                        });
+                } else {
+                    console.error('MediaDevices API is not supported in this browser.');
+                }
+
                 // Hide previous recording when starting new recording
                 document.getElementById('recordingContainer').style.display = 'none';
                 
                 stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                let mimeType = 'audio/wav'; // Default to WAV
+
+                if (MediaRecorder.isTypeSupported('audio/webm')) {
+                    mimeType = 'audio/webm'; // Use WebM if supported
+                } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    mimeType = 'audio/mp4'; // Use MP4 if supported
+                } else if (MediaRecorder.isTypeSupported('audio/m4a')) {
+                    mimeType = 'audio/m4a'; // Use M4A if supported
+                } else if (MediaRecorder.isTypeSupported('audio/mp3')) {
+                    mimeType = 'audio/mp3'; // Use MP3 if supported
+                }
+
                 mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: 'audio/webm',
+                    mimeType: mimeType,
                     audioBitsPerSecond: 16000
                 });
                 
@@ -125,10 +237,11 @@
                 };
 
                 mediaRecorder.onstop = async () => {
+                    console.log('Recording stopped');
                     // Stop all tracks in the stream
                     stream.getTracks().forEach(track => track.stop());
                     
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
                     
                     // Show the recording container and update audio player
                     const audioURL = URL.createObjectURL(audioBlob);
@@ -174,11 +287,24 @@
         };
 
         document.getElementById('stopRecord').onclick = () => {
-            mediaRecorder.stop();
-            document.getElementById('startRecord').disabled = false;
-            document.getElementById('stopRecord').disabled = true;
-            document.getElementById('status').textContent = 'Status: Stopped recording';
-            document.getElementById('status').className = '';
+            console.log('Stop button clicked');
+            if (mediaRecorder) {
+                console.log('Stopping MediaRecorder...');
+                mediaRecorder.stop(); // Stop the MediaRecorder
+
+                // Stop all tracks in the stream to release the microphone
+                if (stream) {
+                    stream.getTracks().forEach(track => {
+                        track.stop(); // Stop each track
+                    });
+                }
+
+                // Update UI elements
+                document.getElementById('startRecord').disabled = false; // Enable start button
+                document.getElementById('stopRecord').disabled = true; // Disable stop button
+                document.getElementById('status').textContent = 'Status: Stopped recording';
+                document.getElementById('status').className = ''; // Reset status class
+            }
         };
 
         function displayPredictions(predictions) {
@@ -231,6 +357,10 @@
                 }, 500); // Wait for the fade-out transition to complete
             }, 2000); // Splash screen will show for 2 seconds
         });
+
+        function closeIntro() {
+            document.getElementById('introOverlay').style.display = 'none';
+        }
     </script>
 </body>
 </html> 

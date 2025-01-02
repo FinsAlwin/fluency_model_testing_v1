@@ -150,7 +150,7 @@ class AudioPredictor:
             model = self.model
             
             # Convert webm to wav
-            audio = AudioSegment.from_file(audio_path, format="webm")
+            audio = AudioSegment.from_file(audio_path)
             wav_path = audio_path.rsplit('.', 1)[0] + '.wav'
             audio.export(wav_path, format="wav")
 
